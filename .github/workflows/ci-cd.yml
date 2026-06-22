@@ -1,0 +1,109 @@
+name: Aegis Patient Triage System CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # Job 1: Run Python Unit Tests for clinical NEWS2 logic and simulator
+  python-tests:
+    name: Run Python Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f simulator/requirements.txt ]; then pip install -r simulator/requirements.txt; fi
+
+      - name: Run Unit Tests
+        run: |
+          python -m unittest discover -s simulator/tests
+
+  # Job 2: Validate Terraform Infrastructure (IaC Quality Gate)
+  terraform-checks:
+    name: Validate Terraform
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.7.0'
+
+      - name: Verify Code Format
+        run: terraform fmt -check
+        working-directory: infra
+
+      - name: Initialize & Validate Configuration
+        run: |
+          terraform init -backend=false
+          terraform validate
+        working-directory: infra
+
+  # Job 3: Compile Vite + React Frontend Production Build
+  frontend-checks:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Frontend Dependencies
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+        working-directory: frontend
+
+      - name: Build Web Bundle
+        run: npm run build
+        working-directory: frontend
+
+  # Job 4: Continuous Deployment (CD to AWS)
+  # Guarded: only runs on pushing to main branch after all checks pass
+  deploy:
+    name: Deploy to AWS
+    needs: [ python-tests, terraform-checks, frontend-checks ]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.7.0'
+
+      - name: Initialize AWS Terraform Backend
+        run: terraform init
+        working-directory: infra
+
+      - name: Apply Infrastructure Changes
+        run: terraform apply -auto-approve
+        working-directory: infra
