@@ -413,6 +413,18 @@ def build_pdf(filename="AEGIS_Smart_Patient_Triage_System_Documentation.pdf"):
         "without human intervention, maintaining high clinical uptime.",
         body_style
     ))
+
+    # Terraform S3 Remote Backend & Locking
+    story.append(Paragraph("3.5 Terraform Remote State Backend (S3 & DynamoDB Locks) — State Integrity Keeper", h2_style))
+    story.append(Paragraph(
+        "When multiple engineers or automated deployment workflows (such as GitHub Actions) attempt to update infrastructure "
+        "simultaneously, severe configuration conflicts or state file corruption can occur. The Terraform Remote State Backend "
+        "prevents this by designating a secure Amazon S3 bucket (<code>rajgenstack-triage-tfstate</code>) as the centralized "
+        "source of truth for the entire infrastructure state. To eliminate race conditions, a DynamoDB locking table "
+        "(<code>rajgenstack-triage-tfstate-locks</code>) coordinates exclusive access. This dual-service configuration ensures "
+        "distributed synchronization, prevents state drift, and guarantees safe concurrent deployments.",
+        body_style
+    ))
     story.append(PageBreak())
 
     # =========================================================================

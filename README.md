@@ -82,6 +82,14 @@ python simulator/vitals_simulator.py --patients 5 --interval 2 --duration 30 --s
 
 ---
 
+## Phase 2: Core AWS Pipeline & Remote State Backend
+
+Phase 2 sets up the serverless AWS pipeline (SQS → Lambda → DynamoDB) using Terraform. To prevent resource conflicts and state discrepancies between your local developer environment and the GitHub Actions CI/CD runner, the architecture utilizes a **Secure Remote Backend**:
+*   **State Storage (S3)**: S3 bucket `rajgenstack-triage-tfstate` serves as the centralized source of truth for the Terraform resource state.
+*   **State Locking (DynamoDB)**: DynamoDB table `rajgenstack-triage-tfstate-locks` manages concurrent executions to prevent state corruption.
+
+---
+
 ## Phase 3: React Triage Dashboard
 
 Phase 3 introduces a clean clinical light-mode patient health dashboard that polls AWS Lambda API Function URLs, displaying real-time patient states sorted by clinical score under Indian patient identities (e.g., Priya Singh, Aditi Patel).
