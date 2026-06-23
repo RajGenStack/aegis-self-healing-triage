@@ -17,7 +17,7 @@ import {
   Info
 } from 'lucide-react';
 
-const API_URL = 'https://mo7oqvl32weyjjhqqkb4ri62eu0thusg.lambda-url.us-east-1.on.aws/';
+const API_URL = 'https://h2iiorj77xbglciznwm74jad640sqdsd.lambda-url.us-east-1.on.aws/';
 
 // High-quality mock data for fallback/offline display
 const MOCK_PATIENTS = [
@@ -943,11 +943,20 @@ function App() {
        * High-tech Dashboard Footer
        * ----------------------------------------------------------------------------- */}
       <footer className="dashboard-footer">
-        <div className="footer-container">
-          <p className="footer-text">© 2026 Aegis Patient Monitoring Core. Standard clinical Early Warning Scoring.</p>
-          <div className="footer-links">
+        <div className="footer-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', justifyContent: 'center' }}>
             <span className="footer-link-item"><span className="footer-dot-green"></span> AWS Ingestion Active</span>
             <span className="footer-link-item"><span className="footer-dot-green"></span> Live Telemetry Connected</span>
+          </div>
+          <p className="footer-text" style={{ margin: 0, textAlign: 'center' }}>
+            © 2026 <strong>Rajan Kumar</strong>. All rights reserved. Standard clinical Early Warning Scoring (NEWS2).
+          </p>
+          <div className="footer-socials" style={{ display: 'flex', gap: '12px', fontSize: '11px', marginTop: '2px' }}>
+            <a href="https://github.com/RajGenStack" target="_blank" rel="noopener noreferrer" style={{ color: '#64748b', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={(e) => e.target.style.color = '#e11d48'} onMouseOut={(e) => e.target.style.color = '#64748b'}>GitHub</a>
+            <span style={{ color: '#cbd5e1' }}>•</span>
+            <a href="https://www.linkedin.com/in/rajan-kumar42" target="_blank" rel="noopener noreferrer" style={{ color: '#64748b', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={(e) => e.target.style.color = '#e11d48'} onMouseOut={(e) => e.target.style.color = '#64748b'}>LinkedIn</a>
+            <span style={{ color: '#cbd5e1' }}>•</span>
+            <a href="https://www.instagram.com/rajansxarma?igsh=eDh1bnk1NmVsZjcz" target="_blank" rel="noopener noreferrer" style={{ color: '#64748b', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={(e) => e.target.style.color = '#e11d48'} onMouseOut={(e) => e.target.style.color = '#64748b'}>Instagram</a>
           </div>
         </div>
       </footer>

@@ -189,4 +189,16 @@ python postmortem/generate_postmortem.py --incident-id INC-001 --scenario db-fai
 ```
 This automatically computes MTTR metrics and creates a report template at `postmortem/incident_INC-001.md`.
 
+---
+
+## License & Copyright
+
+© 2026 **Rajan Kumar**. All rights reserved.
+
+This project and all its associated source code, clinical NEWS2 integrations, self-healing closed-loop designs, and deployment configurations are protected under copyright law. No part of this repository may be copied, distributed, or stolen without explicit written permission from the author.
+
+### Connect with the Author:
+* **GitHub:** [RajGenStack](https://github.com/RajGenStack)
+* **LinkedIn:** [Rajan Kumar](https://www.linkedin.com/in/rajan-kumar42)
+* **Instagram:** [@rajansxarma](https://www.instagram.com/rajansxarma?igsh=eDh1bnk1NmVsZjcz)
 
