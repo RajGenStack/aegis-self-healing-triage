@@ -7,3 +7,8 @@ output "queue_arn" {
   description = "The ARN of the vitals queue"
   value       = aws_sqs_queue.vitals_queue.arn
 }
+
+output "queue_name" {
+  description = "The name of the vitals queue"
+  value       = aws_sqs_queue.vitals_queue.name
+}

@@ -202,3 +202,128 @@ resource "aws_lambda_permission" "allow_public_access_invoke" {
   function_name          = aws_lambda_function.api_function.function_name
   principal              = "*"
 }
+
+# -----------------------------------------------------------------------------
+# Phase 7 Self-Healing: Remediation Lambda Function & Trigger
+# -----------------------------------------------------------------------------
+
+data "archive_file" "remediation_zip" {
+  type        = "zip"
+  source_dir  = "${path.module}/../../../lambdas/remediation"
+  output_path = "${path.module}/triage_remediation.zip"
+}
+
+resource "aws_iam_role" "remediation_role" {
+  name = "${var.resource_prefix}-remediation-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy" "remediation_policy" {
+  name        = "${var.resource_prefix}-remediation-policy"
+  description = "Permissions for executing automated self-healing remediation actions"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      # CloudWatch Logs permissions
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource = "arn:aws:logs:*:*:*"
+      },
+      # Lambda management permissions (specifically for repairing processor Lambda)
+      {
+        Effect = "Allow"
+        Action = [
+          "lambda:GetFunctionConfiguration",
+          "lambda:UpdateFunctionConfiguration",
+          "lambda:GetFunction",
+          "lambda:DeleteFunctionConcurrency",
+          "lambda:ListEventSourceMappings",
+          "lambda:UpdateEventSourceMapping"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "remediation_attach" {
+  role       = aws_iam_role.remediation_role.name
+  policy_arn = aws_iam_policy.remediation_policy.arn
+}
+
+resource "aws_lambda_function" "remediation_function" {
+  filename         = data.archive_file.remediation_zip.output_path
+  source_code_hash = data.archive_file.remediation_zip.output_base64sha256
+  function_name    = "${var.resource_prefix}-remediation-processor"
+  role             = aws_iam_role.remediation_role.arn
+  handler          = "handler.lambda_handler"
+  runtime          = "python3.11"
+  timeout          = 30
+
+  environment {
+    variables = {
+      PROCESSOR_FUNCTION_NAME = aws_lambda_function.processor_function.function_name
+      CORRECT_DYNAMODB_TABLE  = var.dynamodb_table_name
+    }
+  }
+
+  depends_on = [
+    aws_iam_role_policy_attachment.remediation_attach
+  ]
+}
+
+# EventBridge Rule: Triggers on CloudWatch Alarm State Changes transitioning to ALARM
+resource "aws_cloudwatch_event_rule" "remediation_rule" {
+  name        = "${var.resource_prefix}-remediation-rule"
+  description = "Triggers remediation when triage pipeline alarms transition to ALARM"
+
+  event_pattern = jsonencode({
+    source      = ["aws.cloudwatch"]
+    detail-type = ["CloudWatch Alarm State Change"]
+    detail = {
+      state = {
+        value = ["ALARM"]
+      }
+      alarmName = [
+        "${var.resource_prefix}-sqs-backlog-alarm",
+        "${var.resource_prefix}-sqs-latency-alarm",
+        "${var.resource_prefix}-processor-errors-alarm",
+        "${var.resource_prefix}-processor-duration-alarm"
+      ]
+    }
+  })
+}
+
+# EventBridge Target linking the Rule to the Remediation Lambda
+resource "aws_cloudwatch_event_target" "remediation_target" {
+  rule      = aws_cloudwatch_event_rule.remediation_rule.name
+  target_id = "RemediationLambdaTarget"
+  arn       = aws_lambda_function.remediation_function.arn
+}
+
+# Lambda permission allowing EventBridge to invoke the Remediation Lambda
+resource "aws_lambda_permission" "allow_eventbridge_invoke" {
+  statement_id  = "AllowExecutionFromEventBridge"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.remediation_function.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.remediation_rule.arn
+}

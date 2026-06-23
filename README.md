@@ -10,10 +10,10 @@ A real-time healthcare monitoring system built on AWS that tracks patient vitals
 | **Phase 2** | **Core AWS Pipeline (SQS → Lambda → DynamoDB via Terraform)** | **Completed** |
 | **Phase 3** | **React Triage Dashboard (NEWS2 Clinical Urgency)** | **Completed** |
 | **Phase 4** | **CI/CD Pipeline (GitHub Actions automatic deployments)** | **Completed** |
-| **Phase 5** | Observability (CloudWatch dashboards & alarms) | Planned |
-| **Phase 6** | Chaos Engineering (Custom outage injection script) | Planned |
-| **Phase 7** | Self-Healing (Automated EventBridge remediation loop) | Planned |
-| **Phase 8** | Postmortem & Documentation (MTTR reports + architecture) | Planned |
+| **Phase 5** | **Observability (CloudWatch dashboards & alarms)** | **Completed** |
+| **Phase 6** | **Chaos Engineering (Custom outage injection script)** | **Completed** |
+| **Phase 7** | **Self-Healing (Automated EventBridge remediation loop)** | **Completed** |
+| **Phase 8** | **Postmortem & Documentation (MTTR reports + architecture)** | **Completed** |
 
 ---
 
@@ -118,5 +118,75 @@ To enable automated CD deployment, add these repository secrets in GitHub under 
 *   `AWS_ACCESS_KEY_ID`: Your AWS access key.
 *   `AWS_SECRET_ACCESS_KEY`: Your AWS secret access key.
 *   `AWS_REGION`: The target AWS deployment region (e.g., `us-east-1`).
+
+---
+
+## Phase 5: Observability & CloudWatch Dashboard
+
+Phase 5 provisions a centralized CloudWatch dashboard and alarm triggers linking SNS alerts.
+
+### Configuring Alerts
+To receive email notifications for system alerts:
+1. Pass the email address to the `alert_email` variable in your Terraform configurations:
+   ```hcl
+   # In infra/terraform.tfvars or as CLI argument
+   alert_email = "your-email@example.com"
+   ```
+2. Apply changes: `terraform apply`
+3. Check your inbox and click "Confirm Subscription" in the Amazon SNS confirmation email.
+
+---
+
+## Phase 6: Chaos Outage Injection
+
+Phase 6 provides a custom outage simulator to inject pipeline outages to verify resilience.
+
+### Using the Outage Simulator CLI
+Run command commands from the repository root:
+1. **Check Status**: Query live configuration states across Lambdas, triggers, and tables:
+   ```bash
+   python chaos/outage_simulator.py status
+   ```
+2. **Inject Outages**:
+   - Concurrency block:
+     ```bash
+     python chaos/outage_simulator.py inject --scenario concurrency-block
+     ```
+   - Disable SQS trigger mapping:
+     ```bash
+     python chaos/outage_simulator.py inject --scenario event-mapping-disable
+     ```
+   - Point DynamoDB to an invalid table name:
+     ```bash
+     python chaos/outage_simulator.py inject --scenario db-failure
+     ```
+3. **Rollback Outages**:
+   ```bash
+   python chaos/outage_simulator.py rollback --scenario <scenario-name>
+   ```
+
+---
+
+## Phase 7: Self-Healing Remediation Loop
+
+Phase 7 implements automatic self-healing. When a CloudWatch Alarm transitions to `ALARM` state, an EventBridge rule intercepts the event and triggers the remediation Lambda. The Lambda executes boto3 APIs to restore standard configurations (removing concurrency limits, re-enabling triggers, or correcting DynamoDB table variables).
+
+No manual commands are needed; recovery executes automatically within seconds of alarm state change.
+
+---
+
+## Phase 8: Architecture & Postmortems
+
+Phase 8 introduces system documentation and incident reporting automation.
+
+### Architecture Overview
+Full system design details and workflows can be found in **[docs/architecture.md](docs/architecture.md)**.
+
+### Automated Incident Postmortems
+Generate incident report postmortems in Markdown by providing the incident details:
+```bash
+python postmortem/generate_postmortem.py --incident-id INC-001 --scenario db-failure --duration 85
+```
+This automatically computes MTTR metrics and creates a report template at `postmortem/incident_INC-001.md`.
 
 

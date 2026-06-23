@@ -9,3 +9,9 @@ variable "resource_prefix" {
   description = "Prefix for naming resources to ensure uniqueness"
   default     = "rajgenstack-triage"
 }
+
+variable "alert_email" {
+  type        = string
+  description = "Email address for SNS alert subscriptions. If left blank, no subscription is created."
+  default     = ""
+}
