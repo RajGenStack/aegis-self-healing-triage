@@ -17,7 +17,7 @@ import {
   Info
 } from 'lucide-react';
 
-const API_URL = 'https://h2iiorj77xbglciznwm74jad640sqdsd.lambda-url.us-east-1.on.aws/';
+const API_URL = 'https://olrigx3qm4jqtffx4ejd7tiqmi0mbann.lambda-url.us-east-1.on.aws/';
 
 // High-quality mock data for fallback/offline display
 const MOCK_PATIENTS = [

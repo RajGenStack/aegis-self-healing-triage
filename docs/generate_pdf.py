@@ -532,7 +532,7 @@ def build_pdf(filename="AEGIS_Smart_Patient_Triage_System_Documentation.pdf"):
     step_text_2 = (
         "<b>Step 2: Configure the API URL</b>\n"
         "Ensure the API URL in frontend/src/App.jsx points to the live AWS Lambda Function URL:\n"
-        "const API_URL = 'https://h2iiorj77xbglciznwm74jad640sqdsd.lambda-url.us-east-1.on.aws/';"
+        "const API_URL = 'https://olrigx3qm4jqtffx4ejd7tiqmi0mbann.lambda-url.us-east-1.on.aws/';"
     )
     story.append(Preformatted(step_text_2, code_block_style))
 
