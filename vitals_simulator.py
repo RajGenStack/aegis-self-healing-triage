@@ -61,10 +61,10 @@ PATIENT_PROFILES = {
 }
 
 PATIENT_NAMES = [
-    "James Smith", "Mary Johnson", "John Williams", "Patricia Brown", "Robert Jones",
-    "Jennifer Miller", "Michael Davis", "Abishek Sharma", "William Rodriguez", "Linda Wilson",
-    "David Martinez", "Barbara Anderson", "Richard Taylor", "Susan Thomas", "Joseph Hernandez",
-    "Jessica Moore", "Thomas Martin", "Sarah Jackson", "Charles Martin", "Karen Lee"
+    "Aarav Sharma", "Aditi Patel", "Priya Singh", "Rohan Gupta", "Vikram Mehta",
+    "Ananya Iyer", "Kabir Verma", "Riya Sen", "Devendra Joshi", "Sai Krishna",
+    "Arjun Nair", "Sneha Reddy", "Ishaan Sen", "Meera Nair", "Pranav Rao",
+    "Neha Deshmukh", "Rahul Prasad", "Divya Pillai", "Shreya Bose", "Sanjay Kumar"
 ]
 
 class NEWS2Scorer:
