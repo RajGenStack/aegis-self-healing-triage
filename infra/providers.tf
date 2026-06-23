@@ -10,6 +10,14 @@ terraform {
       version = "~> 2.0"
     }
   }
+
+  backend "s3" {
+    bucket         = "rajgenstack-triage-tfstate"
+    key            = "state/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "rajgenstack-triage-tfstate-locks"
+    encrypt        = true
+  }
 }
 
 provider "aws" {
