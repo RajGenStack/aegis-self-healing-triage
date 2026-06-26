@@ -32,3 +32,8 @@ dist/
 *.njsproj
 *.sln
 *.swp
+
+# Resumes and Generated Documents
+resume/
+*.pdf
+
