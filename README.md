@@ -13,6 +13,19 @@ A serverless patient-monitoring pipeline on AWS. It scores simulated vital signs
 ![React](https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB)
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white)
 
+<p>
+  <img alt="Last commit" src="https://img.shields.io/github/last-commit/RajGenStack/aegis-self-healing-triage?style=flat-square&labelColor=0d1117&color=ff6b35">
+  <img alt="Top language" src="https://img.shields.io/github/languages/top/RajGenStack/aegis-self-healing-triage?style=flat-square&labelColor=0d1117&color=8b949e">
+  <img alt="Repository size" src="https://img.shields.io/github/repo-size/RajGenStack/aegis-self-healing-triage?style=flat-square&labelColor=0d1117&color=8b949e">
+</p>
+
+## What this demonstrates
+
+- Event-driven serverless design: a queue absorbing bursts, a function scoring each reading, and a table holding state
+- Modular Terraform with remote state and locking, so the stack is reproducible and safe for more than one operator
+- Observability wired to action: an alarm triggers an event rule that invokes remediation, instead of paging a human
+- Chaos engineering: three injected failure modes, automatic recovery, and postmortems with measured recovery times
+
 ## Highlights
 
 - **Clinical scoring:** NEWS2 from respiration rate, SpO₂ (including the COPD Scale 2 target range), supplemental oxygen, systolic blood pressure, heart rate, temperature and consciousness, with unit tests on the threshold boundaries
